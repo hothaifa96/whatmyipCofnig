@@ -3,6 +3,8 @@ pipeline{
     environment{
         APP_NAME = 'whatsmyip'
         GITHUB_URL = 'https://github.com/hothaifa96/whatmyip'
+        IMAGE="${APP_NAME}:V1.${BUILD_NUMBER}"
+        
     }
     stages{
         stage('checkout source code'){
@@ -18,6 +20,12 @@ pipeline{
                 sh "docker images | grep -i ${APP_NAME}"
             }
         }
-        
+        stage('test'){
+            steps{
+                sh "docker run -p 8000:8000 --name ${JOB_NAME} -d ${IMAGE}"
+                 
+                sh 'curl $(docker inspect --format "{{ .NetworkSettings.Networks.bridge.IPAddress }}" "${JOB_NAME}"):8000/'
+            }
+        }
     }
 }
