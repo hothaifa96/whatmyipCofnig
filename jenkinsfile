@@ -1,0 +1,9 @@
+pipeline{
+    agent any
+    stages{
+        stage('checkout source code'){
+            git branch: 'main', credentialsId: 'hodi-git', url: 'https://github.com/hothaifa96/whatmyip' 
+        }
+        
+    }
+}
