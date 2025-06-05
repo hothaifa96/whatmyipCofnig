@@ -7,15 +7,15 @@ pipeline{
     stages{
         stage('checkout source code'){
             steps{
-                git branch: 'main', credentialsId: 'hodi-git', url: '${GITHUB_URL}'
+                git branch: 'main', credentialsId: 'hodi-git', url: '${env.GITHUB_URL}'
             }
         }
         stage('build docker image'){
             steps{
                 dir('backend'){
-                    sh 'docker build -t ${APP_NAME}:V1.${BUILD_NUMBER}'
+                    sh 'docker build -t ${env.APP_NAME}:V1.${env.BUILD_NUMBER}'
                 }
-                sh 'docker images | grep -i ${APP_NAME}'
+                sh 'docker images | grep -i ${env.APP_NAME}'
             }
         }
         
