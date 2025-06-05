@@ -1,9 +1,21 @@
 pipeline{
     agent any
+    environment{
+        APP_NAME='whatsmyip'
+        GITHUB_URL='https://github.com/hothaifa96/whatmyip'
+    }
     stages{
         stage('checkout source code'){
             steps{
-                git branch: 'main', credentialsId: 'hodi-git', url: 'https://github.com/hothaifa96/whatmyip' 
+                git branch: 'main', credentialsId: 'hodi-git', url: ${GITHUB_URL} 
+            }
+        }
+        stage('build docker image'){
+            steps{
+                dir('backend'){
+                    sh 'docker build -t ${APP_NAME}:V1.${BUILD_NUMBER}'
+                }
+                sh 'docker images | grep -i ${APP_NAME}'
             }
         }
         
