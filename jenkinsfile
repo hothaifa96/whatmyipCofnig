@@ -4,7 +4,7 @@ pipeline{
         APP_NAME = 'whatsmyip'
         GITHUB_URL = 'https://github.com/hothaifa96/whatmyip'
         IMAGE="${APP_NAME}:V1.${BUILD_NUMBER}"
-        
+        DOCKER_REPO="hothaifaz11/whatsmyip"
     }
     stages{
         stage('checkout source code'){
@@ -23,8 +23,26 @@ pipeline{
         stage('test'){
             steps{
                 sh "docker run -p 8000:8000 --name ${JOB_NAME} -d ${IMAGE}"
-                 
                 sh 'curl $(docker inspect --format "{{ .NetworkSettings.Networks.bridge.IPAddress }}" "${JOB_NAME}"):8000/'
+            }
+            post{
+                always{
+                    sh "docker rm -f  ${JOB_NAME}"
+                }
+            }
+
+        }
+        stage('upload artifacts'){
+            steps{
+                withCredentials([usernamePassword(credentialsId: 'hodi-docker',
+                                   usernameVariable: 'DOCKER_USER',
+                                   passwordVariable: 'DOCKER_PASS')]) {
+                sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker tag "${IMAGE}" "${DOCKER_REPO}"
+                    docker push DOCKER_REPO:"${BUILD_NUMBER}"
+                '''
+                }
             }
         }
     }
